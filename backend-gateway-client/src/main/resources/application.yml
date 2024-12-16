@@ -1,0 +1,50 @@
+server:
+  port: 8083
+spring:
+  security:
+    csrf:
+      enabled: true
+  application.name: backend-gateway-client
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    gateway:
+      routes:
+        - id: resources
+          uri: http://localhost:8082/messages
+          predicates:
+            Path=/messages/**
+          filters:
+            TokenRelay=
+        - id: minio
+          uri: http://localhost:9000
+          predicates:
+            - Path=/minio/**
+        - id: minio-api
+          uri: http://localhost:8000
+          predicates:
+              - Path=/minio-api/**
+          filters:
+            - RewritePath=/minio-api/(?<segment>.*), /${segment}
+#        - filters:
+#          - StripPrefix=1
+#          metadata:
+#            minio-access-key: pv9xMTOEswyW5J1gEdMb
+#            minio-secret-key: b1eZppFQ9D5ZnXvRgOb47ilE67JRa5HtepXLM0oU
+#          filters:
+#            AddRequestHeader=X-Minio-Access-Key, pv9xMTOEswyW5J1gEdMb
+#            AddRequestHeader=X-Minio-Secret-Key, b1eZppFQ9D5ZnXvRgOb47ilE67JRa5HtepXLM0oU
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          gateway:
+#            provider: my-provider
+#            client-id: my_client
+#            client-secret: q6jaO6zp9ay8zFGlGjpzwtp6nXW1Jj5C
+#            authorization-grant-type: authorization_code
+#            redirect-uri: "http://localhost:8083/login/oauth2/code/{registrationId}"
+#            scope: openid, message.read
+#        provider:
+#          my-provider:
+#            issuer-uri: http://localhost:8080/auth/realms/my_realm
